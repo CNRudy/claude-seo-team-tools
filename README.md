@@ -45,6 +45,8 @@ claude-seo-team-tools/
 > 说明：`tools/` 里的脚本运行时需要 claude-seo 提供的抓取/解析模块，仓库已将 claude-seo **完整内置**在 `claude-seo/` 目录（MIT 协议、含其 LICENSE），clone 后无需联网下载。
 >
 > 📖 **想在 WorkBuddy / Claude Code 这类 AI 工具里用人话下指令就让工具跑起来？先读 [docs/AI工作台使用手册.md](docs/AI工作台使用手册.md)** —— 里面有一份复制即用的指令库，还有 claude-seo 53 个脚本里"哪些适合我们业务"的完整盘点。
+>
+> 🧭 **想一次看清"名单 → 体检 → 权重 → 域名尽调 → 联系"的完整打法？读 [docs/合作方尽调完整流程_v2.md](docs/合作方尽调完整流程_v2.md)** —— 7 关流水线 + 每关用什么工具、谁执行、复检周期、质量门槛。
 
 ---
 
