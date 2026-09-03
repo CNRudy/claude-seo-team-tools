@@ -7,8 +7,10 @@
 #
 # 网络要求: 本脚本需要访问 web.archive.org（Wayback Machine）。
 #          中国大陆网络直连不通 —— 请先开启 VPN/代理再运行！
-#          预检: curl -s -m 5 -o /dev/null -w "%{http_code}" https://web.archive.org/
-#                返回 200 再跑本脚本。
+#          预检会依次尝试「直连 → HTTPS_PROXY/HTTP_PROXY/ALL_PROXY 环境变量」，
+#          任一通道返回 200 即放行；都不通则退出。
+#          在 WorkBuddy 沙箱里跑时, 若本机 Clash 代理端口可被沙箱访问,
+#          可先: export HTTPS_PROXY=http://127.0.0.1:7890 再运行本脚本。
 #
 # 用法:
 #   bash run_topic_shift.sh                 # 用内置样例(30 个老域C/D级嫌疑)
@@ -22,12 +24,21 @@ OUT="主题漂移复查结果.csv"
 
 echo "==== 第 0 步: 运行前网络检查 ===="
 CODE=$(curl -s -m 6 -o /dev/null -w "%{http_code}" "https://web.archive.org/" 2>/dev/null || echo 000)
+CHANNEL="直连"
+if [ "$CODE" != "200" ]; then
+  for P in "${HTTPS_PROXY:-$https_proxy}" "${HTTP_PROXY:-$http_proxy}" "${ALL_PROXY:-$all_proxy}"; do
+    [ -z "$P" ] && continue
+    CODE=$(curl -s -m 8 -x "$P" -o /dev/null -w "%{http_code}" "https://web.archive.org/" 2>/dev/null || echo 000)
+    if [ "$CODE" = "200" ]; then CHANNEL="代理($P)"; break; fi
+  done
+fi
 if [ "$CODE" = "200" ]; then
-  echo "  [PASS] web.archive.org 可达 (HTTP $CODE)"
+  echo "  [PASS] web.archive.org 可达 (HTTP $CODE, 通道: $CHANNEL)"
 else
   echo "  [FAIL] web.archive.org 不可达 (HTTP $CODE)"
   echo "  -> 请先开启能访问 archive.org 的 VPN/代理, 再重跑本脚本"
-  echo "  -> 检查: curl -s -m 5 -o /dev/null -w '%{http_code}' https://web.archive.org/"
+  echo "  -> 直连:      curl -s -m 5 -o /dev/null -w '%{http_code}' https://web.archive.org/"
+  echo "  -> 走代理:    export HTTPS_PROXY=http://127.0.0.1:7890 && bash run_topic_shift.sh"
   exit 1
 fi
 
