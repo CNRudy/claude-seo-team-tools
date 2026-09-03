@@ -1,10 +1,9 @@
-# 依赖环境（setup.sh 会自动下载，不入库）
+# 依赖环境（本地运行时生成，不入库）
 .venv-seo/
-claude-seo/
 __pycache__/
 *.pyc
 
-# 运行时产物
+# 运行时产物（分析结果表/名单）
 *.xlsx
 !examples/**/*.xlsx
 *.csv

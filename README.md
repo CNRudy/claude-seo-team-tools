@@ -3,9 +3,9 @@
 > 给"不想研究工具、只想拿到结果"的同事看的**中文使用说明书**。
 > 一句话：这套工具能帮你**批量判断一批网站是否在运营、质量如何、主攻哪个国家市场**，输出可以直接打开的表，用于站外推广/联盟客/红人合作方的筛选与评估。
 
-- 本仓库内容：**3 个自研分析工具**（基于开源项目 claude-seo 封装，见下方说明）+ **小白上手指南**
-- 开源依赖：<https://github.com/AgriciDaniel/claude-seo>（MIT 协议）
-- 系统要求：macOS / Linux、已装 Python 3.9+ 和 git
+- 本仓库内容：**3 个自研分析工具**（基于开源项目 claude-seo 封装）+ **内置的 claude-seo 上游副本**（`claude-seo/`，MIT 协议，版权归原作者 agricidaniel）+ **小白上手指南**
+- 上游项目：<https://github.com/AgriciDaniel/claude-seo>（MIT 协议，本仓库已整包内置，clone 后无需联网下载）
+- 系统要求：macOS / Linux、已装 Python 3.9+（git 仅在需要更新上游副本时用）
 
 ---
 
@@ -29,6 +29,7 @@
 claude-seo-team-tools/
 ├── README.md                        ← 本文件（指南）
 ├── setup.sh                         ← 一键初始化（首次使用运行）
+├── claude-seo/                      ← 内置的上游开源引擎（完整副本，勿改动）
 ├── tools/
 │   ├── batch_site_analyzer.py       ← 工具1：批量初筛（活没活/语言/国家/简介）
 │   ├── partner_health_check.py      ← 工具2：四维体检（A/B/C/D 分级评分）
@@ -38,7 +39,7 @@ claude-seo-team-tools/
     └── urls_sample.txt              ← 示例网址名单（可直接试跑）
 ```
 
-> 说明：`tools/` 里的脚本运行时需要上游 claude-seo 提供的抓取/解析模块，`setup.sh` 会自动把它下载到 `claude-seo/` 目录（已在 .gitignore 排除，不入库）。
+> 说明：`tools/` 里的脚本运行时需要 claude-seo 提供的抓取/解析模块，仓库已将 claude-seo **完整内置**在 `claude-seo/` 目录（MIT 协议、含其 LICENSE），clone 后无需联网下载。
 
 ---
 
@@ -50,7 +51,7 @@ claude-seo-team-tools/
 bash setup.sh
 ```
 
-它会自动：下载上游 claude-seo → 创建虚拟环境 → 安装依赖。看到 `✅ 初始化完成` 即成功。
+它会自动：确认内置的 claude-seo 已就绪 → 创建虚拟环境 → 安装依赖。看到 `✅ 初始化完成` 即成功。
 
 ### 第 2 步：跑一个例子
 
@@ -125,10 +126,11 @@ Excel 按分级着色（A绿/B浅绿/C黄/D红），带筛选和冻结窗格。
 
 本仓库的工具并非从零开发，而是把开源项目 **claude-seo** 的抓取 / 解析 / 内容质量评分能力封装成了上面的傻瓜式脚本。claude-seo 本身是一个功能更全的 AI SEO 审计插件（跑在 Claude Code 里，25 个子技能、32 条命令，能对任意网址做整站 SEO 体检、Schema 结构化数据检查、AI 搜索优化、外链分析等），对我们的价值主要是它的底层模块稳定、可信。
 
-若后续想探索完整能力（需要 Claude Code 环境）：
+为便于团队内部使用与版本固定，**仓库在 `claude-seo/` 目录内置了该项目的完整副本（MIT 协议，含其 LICENSE）**。日常不需要动它；若要升级到上游新版本，可整目录替换为最新 clone（见官方仓库）。
 
 - 官方仓库：<https://github.com/AgriciDaniel/claude-seo>
-- 命令示例：`/seo audit https://example.com`（全站审计）· `/seo content <url>`（内容质量）· `/seo schema <url>`（结构化数据）
+- 内置副本版本：v2.2.4（2026-07 上游发布）
+- 命令示例（需 Claude Code 环境）：`/seo audit https://example.com`（全站审计）· `/seo content <url>`（内容质量）· `/seo schema <url>`（结构化数据）
 
 ---
 
@@ -140,11 +142,11 @@ Excel 按分级着色（A绿/B浅绿/C黄/D红），带筛选和冻结窗格。
 | 判断偏 Google SEO 质量 | 用于评估网站健康度/权重，**不等于判断公司是否诚信，合作决策请结合人工背景核实** |
 | 部分高级功能需付费数据源 | 那是可选扩展；本仓库 3 个工具都不需要额外付费 key |
 | 数据隐私 | 工具默认只在本机处理，结果表是你主动导出/推送的 |
-| 开源协议 | claude-seo 为 MIT，可自由使用/修改；本仓库脚本同样以 MIT 发布（见 LICENSE） |
+| 开源协议 | 本仓库代码（`tools/`、`setup.sh`、指南）以 MIT 发布（见 LICENSE）；内置的 `claude-seo/` 为上游 MIT 项目，版权归其原作者，已随附其 LICENSE，未做改动 |
 
 ---
 
 ## 八、License
 
 本仓库代码（`tools/`、`setup.sh`）以 MIT 协议发布，详见 [LICENSE](LICENSE)。
-上游依赖 [claude-seo](https://github.com/AgriciDaniel/claude-seo) 为原作者 Daniel Agrici 的 MIT 开源项目，版权归其作者所有。
+内置的上游引擎 [claude-seo](https://github.com/AgriciDaniel/claude-seo)（存放于 `claude-seo/`）为原作者 agricidaniel 的 MIT 开源项目，完整副本已随仓库分发、**未做任何改动**，其版权与许可条款以该目录内 LICENSE 为准。

@@ -3,7 +3,7 @@
 #  claude-seo 团队工具 - 一键初始化脚本 (macOS / Linux)
 #
 #  做什么：
-#    1. 下载上游开源依赖 claude-seo（本仓库脚本运行时需要）
+#    1. 检查上游依赖 claude-seo 是否就绪（本仓库已内置 vendor 副本）
 #    2. 创建独立的 Python 环境 .venv-seo
 #    3. 安装全部 Python 依赖
 #
@@ -14,14 +14,15 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
-echo "==> [1/3] 准备上游依赖 claude-seo (MIT 开源)..."
+echo "==> [1/3] 检查上游依赖 claude-seo (内置 vendor)..."
 if [ -d "claude-seo/scripts" ]; then
-  echo "    已存在 claude-seo/scripts，跳过下载。"
+  echo "    已就绪：仓库内置了 claude-seo 副本（scripts/ 共 $(ls claude-seo/scripts/*.py 2>/dev/null | wc -l | tr -d ' ') 个脚本）。"
 else
+  echo "    未找到内置 claude-seo，尝试从 GitHub 下载..."
   if command -v git >/dev/null 2>&1; then
     git clone --depth 1 https://github.com/AgriciDaniel/claude-seo.git claude-seo
   else
-    echo "    未检测到 git，请先安装 git 后重试。"
+    echo "    未检测到 git 且缺少内置副本，请先安装 git 后重试。"
     exit 1
   fi
 fi
