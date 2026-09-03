@@ -3,7 +3,7 @@
 > 给"不想研究工具、只想拿到结果"的同事看的**中文使用说明书**。
 > 一句话：这套工具能帮你**批量判断一批网站是否在运营、质量如何、主攻哪个国家市场**，输出可以直接打开的表，用于站外推广/联盟客/红人合作方的筛选与评估。
 
-- 本仓库内容：**3 个自研分析工具**（基于开源项目 claude-seo 封装）+ **内置的 claude-seo 上游副本**（`claude-seo/`，MIT 协议，版权归原作者 agricidaniel）+ **小白上手指南**
+- 本仓库内容：**3 个自研分析工具**（基于开源项目 claude-seo 封装）+ **1 个运行前环境体检工具** + **内置的 claude-seo 上游副本**（`claude-seo/`，MIT 协议，版权归原作者 agricidaniel）+ **面向 AI 工作台的使用手册**
 - 上游项目：<https://github.com/AgriciDaniel/claude-seo>（MIT 协议，本仓库已整包内置，clone 后无需联网下载）
 - 系统要求：macOS / Linux、已装 Python 3.9+（git 仅在需要更新上游副本时用）
 
@@ -30,7 +30,10 @@ claude-seo-team-tools/
 ├── README.md                        ← 本文件（指南）
 ├── setup.sh                         ← 一键初始化（首次使用运行）
 ├── claude-seo/                      ← 内置的上游开源引擎（完整副本，勿改动）
+├── docs/
+│   └── AI工作台使用手册.md           ← 在 WorkBuddy/Claude Code 等 AI 工具里怎么用（含现成指令库）
 ├── tools/
+│   ├── preflight_check.py           ← 工具0：运行前环境体检（依赖/文件/外网连通，开跑前先执行）
 │   ├── batch_site_analyzer.py       ← 工具1：批量初筛（活没活/语言/国家/简介）
 │   ├── partner_health_check.py      ← 工具2：四维体检（A/B/C/D 分级评分）
 │   ├── cc_batch_scan.py             ← 工具3：PageRank 批量扫描（无需 API key）
@@ -40,10 +43,20 @@ claude-seo-team-tools/
 ```
 
 > 说明：`tools/` 里的脚本运行时需要 claude-seo 提供的抓取/解析模块，仓库已将 claude-seo **完整内置**在 `claude-seo/` 目录（MIT 协议、含其 LICENSE），clone 后无需联网下载。
+>
+> 📖 **想在 WorkBuddy / Claude Code 这类 AI 工具里用人话下指令就让工具跑起来？先读 [docs/AI工作台使用手册.md](docs/AI工作台使用手册.md)** —— 里面有一份复制即用的指令库，还有 claude-seo 53 个脚本里"哪些适合我们业务"的完整盘点。
 
 ---
 
-## 三、快速开始（2 步）
+## 三、快速开始（3 步）
+
+### 第 0 步：运行前环境体检（每次拿到新机器/报错时先做）
+
+```bash
+python3 tools/preflight_check.py
+```
+
+检查 Python 版本、仓库文件完整性、依赖包、外网连通性等，输出 `[PASS]/[WARN]/[FAIL]`。**看到 `[FAIL]` 先解决再往下**（通常是没初始化，做第 1 步即可）；只有 `[WARN]` 可以继续，留意提示（例如 Google/YouTube 不通 = 抓它们前需开代理/VPN）。
 
 ### 第 1 步：初始化环境（首次使用只做一次）
 
@@ -64,6 +77,21 @@ bash setup.sh
 ---
 
 ## 四、工具逐个说明
+
+### 工具 0：运行前环境体检 —— 先确认"这台机器能跑"
+
+- **用途**：跑任何联网分析前，一键确认 Python 版本 / 仓库文件 / 依赖包 / 外网连通性是否就绪；顺带探测 whois、Common Crawl 缓存等可选能力
+- **典型场景**：新同事第一次跑、换电脑、突然全部超时/报缺依赖时
+- **纯标准库实现**：任何 Python 3.9+ 环境（包括没初始化依赖的系统 python）都能独立运行，专门用来"诊断环境"
+
+```bash
+python3 tools/preflight_check.py                       # 标准体检
+python3 tools/preflight_check.py --no-net              # 跳过联网检测（离线/内网）
+python3 tools/preflight_check.py --targets https://x.com   # 追加自定义连通目标
+python3 tools/preflight_check.py --json                # 结构化输出
+```
+
+退出码：`0` 就绪 · `2` 可运行但有警告 · `1` 有错误需先解决。
 
 ### 工具 1：批量网站分析器 —— 给一批网址做"初筛"
 
@@ -131,6 +159,8 @@ Excel 按分级着色（A绿/B浅绿/C黄/D红），带筛选和冻结窗格。
 - 官方仓库：<https://github.com/AgriciDaniel/claude-seo>
 - 内置副本版本：v2.2.4（2026-07 上游发布）
 - 命令示例（需 Claude Code 环境）：`/seo audit https://example.com`（全站审计）· `/seo content <url>`（内容质量）· `/seo schema <url>`（结构化数据）
+
+> 上游 53 个脚本里，还有 `domain_history`（域名历史/过期域名灰产识别）、`parasite_risk`（寄生 SEO 风险）、`sitemap_discovery`（发现优惠券/目录页）、`content_verify`（稿件事实核查）等**免费可直接用、且贴合我们联盟客/红人业务**的能力，逐一说明与指令模板见 **[docs/AI工作台使用手册.md](docs/AI工作台使用手册.md) 第五节**。需要的话可让 AI 把其中某几个也封装成 `tools/` 下的批量工具。
 
 ---
 
