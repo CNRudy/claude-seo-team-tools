@@ -42,6 +42,8 @@ claude-seo-team-tools/
 │   ├── cc_batch_scan.py             ← 工具3：PageRank 批量扫描（无需 API key）
 │   ├── site_type_classifier.py      ← 工具4：站点推广类型分类（deal/评测榜单/返利/比价/内容博客/新闻/论坛）⭐ 新增
 │   └── requirements.txt             ← Python 依赖清单
+├── skills/
+│   └── partner-site-tools/SKILL.md  ← WorkBuddy Skill 封装（AI 一句话触发整套工具的"驾照"）
 └── examples/
     ├── urls_sample.txt              ← 示例网址名单（工具1/2 试跑）
     └── site_types_demo.csv          ← 站点类型分类示例（6 个虚构站，覆盖 6 类，工具4 试跑）
@@ -50,6 +52,8 @@ claude-seo-team-tools/
 > 说明：`tools/` 里的脚本运行时需要 claude-seo 提供的抓取/解析模块，仓库已将 claude-seo **完整内置**在 `claude-seo/` 目录（MIT 协议、含其 LICENSE），clone 后无需联网下载。
 >
 > 📖 **想在 WorkBuddy / Claude Code 这类 AI 工具里用人话下指令就让工具跑起来？先读 [docs/AI工作台使用手册.md](docs/AI工作台使用手册.md)** —— 里面有一份复制即用的指令库，还有 claude-seo 53 个脚本里"哪些适合我们业务"的完整盘点。
+>
+> 📦 **已经用上 WorkBuddy Skill？直接把 [skills/partner-site-tools/SKILL.md](skills/partner-site-tools/SKILL.md) 复制到 `~/.workbuddy/skills/partner-site-tools/`** —— AI 检测到"给这堆站点分类/尽调"之类请求时会自动加载并调用本仓库工具，不用再手动贴命令。
 >
 > 🧭 **想一次看清完整打法？读 [docs/合作方尽调完整流程_v2.md](docs/合作方尽调完整流程_v2.md)** —— 7 关流水线 + 每关用什么工具、谁执行、复检周期、质量门槛。
 
