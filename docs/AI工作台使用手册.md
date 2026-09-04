@@ -114,14 +114,27 @@ AI 会执行 `python3 tools/preflight_check.py` 并返回类似：
 再顺着 sitemap 里找有没有 /coupons /deals /best-* 这类适合我们放推广链接的页面。
 ```
 
-### 场景 8：综合流水线（多步串联，一次交付）
+### 场景 8：站点类型分类（这个站是 deal / 评测榜单 / 内容博客？——决定上什么货）
+
+```text
+对 xxx.csv 里的站点做推广类型分类（tools/site_type_classifier.py）：
+优先用"正文摘要"列判断；没有文本列就联网抓首页（--fetch，需要能访问外网）。
+输出 Excel/CSV，加 站点类型/类型得分/类型置信/命中词 四列，
+并统计每类各多少家，点名"评测榜单站"里综合评分最高的 Top 20（这类是单量主力，优先联系）。
+```
+
+> 背景：同为 A/B 级好站，deal 站适合清库存冲量、评测榜单站适合中高客单植入（做 Best-of/Top-N 榜）、
+> 内容博客适合慢热种草、新闻媒体只做 PR 不做 CPS——先分清类型，才知道该上什么货、发什么话术。
+
+### 场景 9：综合流水线（多步串联，一次交付）
 
 分三条消息发更稳（AI 上下文太长容易乱）：
 
 ```text
 ① 先用 tools/batch_site_analyzer.py 初筛 xxx.txt，把有效站输出为 valid.txt
 ② 再对 valid.txt 用 tools/partner_health_check.py 做四维体检，A/B 级留下，输出 ab.txt
-③ 对 ab.txt 里前 50 个补查 PageRank，按 分级+PR 排序，最终出一张 Excel 给我
+③ 对 ab.txt 用 tools/site_type_classifier.py 做站点类型分类（有正文列可直接分；无则加 --fetch）
+④ 对分类结果里"评测榜单站"前 50 个补查 PageRank，按 分级+PR+类型 排序，最终出一张 Excel 给我
 ```
 
 ---
@@ -143,6 +156,10 @@ python3 tools/preflight_check.py
 # 工具3 PageRank 批量扫描（需先准备 Common Crawl 索引，见 README）
 .venv-seo/bin/python tools/cc_batch_scan.py --domains domains.txt --ranks /path/to/cc-*.txt.gz --csv out.csv
 
+# 工具4 站点类型分类（deal/评测榜单/返利/比价/内容博客/新闻/论坛）
+.venv-seo/bin/python tools/site_type_classifier.py --input 体检结果.csv --text-col 正文摘要 --domain-col 域名 -o 分类.csv
+.venv-seo/bin/python tools/site_type_classifier.py --fetch --input urls.txt -o 分类.csv   # 联网抓正文再分类
+
 # 上游脚本直接用（示例：域名历史 / 寄生风险 / sitemap 发现 / 单站 PR）
 .venv-seo/bin/python claude-seo/scripts/domain_history.py example.com
 .venv-seo/bin/python claude-seo/scripts/parasite_risk.py https://example.com
@@ -156,15 +173,16 @@ python3 tools/preflight_check.py
 
 ## 五、这套引擎还能帮我们做什么？（能力 × 业务匹配）
 
-claude-seo 内置了 53 个脚本 / 25 个子技能 / 30+ 条命令，远超我们已封装的 3 个工具。下面按**对我们的业务价值**筛选归类——我们做 Amazon 站外推广、联盟客和红人营销，真正用得上的是这些：
+claude-seo 内置了 53 个脚本 / 25 个子技能 / 30+ 条命令，远超我们已封装的 4 个工具。下面按**对我们的业务价值**筛选归类——我们做 Amazon 站外推广、联盟客和红人营销，真正用得上的是这些：
 
-### 已用上（已封装成 tools/ 三个工具）
+### 已用上（已封装成 tools/ 四个工具）
 
 | 能力 | 位置 | 我们的用法 |
 |---|---|---|
-| 安全抓取 + 页面解析 | `fetch_page.py` / `parse_html.py` | 三个工具的底层 |
+| 安全抓取 + 页面解析 | `fetch_page.py` / `parse_html.py` | 工具的底层 |
 | 内容质量信号 | `content_quality.py`（同族思路） | 体检工具的内容维度 |
 | Common Crawl PageRank | `commoncrawl_graph.py` | 已封装成批量版 `cc_batch_scan.py` |
+| 站点推广类型识别（7 类词表打分） | 自研（`site_type_classifier.py`） | 分清 deal/评测榜单/内容博客…，决定上什么货、发什么话术 |
 
 ### 🟢 直接可用、免费无 key、强烈建议纳入日常（但还没封装成傻瓜工具）
 
@@ -176,7 +194,7 @@ claude-seo 内置了 53 个脚本 / 25 个子技能 / 30+ 条命令，远超我�
 | `content_verify.py` | 挑出正文里缺引用来源的可核实断言 | 审核红人脚本/联盟客稿件有没有「张口就来」的数据 |
 | `content_quality.py` | 检测低质/AI 填充/凑字信号 | 单篇深度检测：红人寄回来的稿子质量把关 |
 
-> 用法：上面这几个复制给 AI 就能跑（见第三节场景 3–5）。如果跑得多，可以让 AI 把其中 1–2 个也封装成 `tools/` 下的批量版——和当初封装三个工具一个套路。
+> 用法：上面这几个复制给 AI 就能跑（见第三节场景 3–5）。如果跑得多，可以让 AI 把其中 1–2 个也封装成 `tools/` 下的批量版——和当初封装四个工具一个套路。
 
 ### 🟡 可用，但需申请免费 key（要联网去 console 申请，约 10 分钟）
 
